@@ -1,0 +1,9 @@
+C:\Users\HP\source\repos\CleanArch\CleanArch.Auth\bin\Debug\netcoreapp3.1\CleanArch.Auth.deps.json
+C:\Users\HP\source\repos\CleanArch\CleanArch.Auth\bin\Debug\netcoreapp3.1\CleanArch.Auth.dll
+C:\Users\HP\source\repos\CleanArch\CleanArch.Auth\obj\Debug\netcoreapp3.1\CleanArch.Auth.AssemblyInfoInputs.cache
+C:\Users\HP\source\repos\CleanArch\CleanArch.Auth\obj\Debug\netcoreapp3.1\CleanArch.Auth.AssemblyInfo.cs
+C:\Users\HP\source\repos\CleanArch\CleanArch.Auth\obj\Debug\netcoreapp3.1\CleanArch.Auth.csprojAssemblyReference.cache
+C:\Users\HP\source\repos\CleanArch\CleanArch.Auth\bin\Debug\netcoreapp3.1\CleanArch.Auth.pdb
+C:\Users\HP\source\repos\CleanArch\CleanArch.Auth\obj\Debug\netcoreapp3.1\CleanArch.Auth.csproj.CoreCompileInputs.cache
+C:\Users\HP\source\repos\CleanArch\CleanArch.Auth\obj\Debug\netcoreapp3.1\CleanArch.Auth.dll
+C:\Users\HP\source\repos\CleanArch\CleanArch.Auth\obj\Debug\netcoreapp3.1\CleanArch.Auth.pdb
