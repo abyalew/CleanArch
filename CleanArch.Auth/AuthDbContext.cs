@@ -9,9 +9,16 @@ namespace CleanArch.Auth
         {
 
         }
-        //public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options)
-        //{
 
-        //}
+        public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options)
+        {
+
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer("Data Source=DESKTOP-NIQVEFD\\SQLEXPRESS;Initial Catalog=CleanArchAuthDb;Integrated Security=True");
+            base.OnConfiguring(optionsBuilder);
+        }
     }
 }
