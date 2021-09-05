@@ -17,7 +17,7 @@ namespace CleanArch.Auth
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Data Source=DESKTOP-NIQVEFD\\SQLEXPRESS;Initial Catalog=CleanArchAuthDb;Integrated Security=True");
+            optionsBuilder.UseSqlServer("Data Source=DESKTOP-NIQVEFD\\SQLEXPRESS;Initial Catalog=CleanArchIdentityDb;Integrated Security=True");
             base.OnConfiguring(optionsBuilder);
         }
     }

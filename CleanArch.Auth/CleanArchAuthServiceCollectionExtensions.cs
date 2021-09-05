@@ -9,10 +9,9 @@ namespace CleanArch.Auth
     {
         public static void AddCleanArchAuth(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddTransient<AuthDbContext>();
             services.AddDbContext<AuthDbContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("CleanArchAuthDb")));
-
+                options.UseSqlServer(configuration.GetConnectionString("CleanArchIdentityDb")));
+            
             services.AddIdentityCore<IdentityUser>().AddEntityFrameworkStores<AuthDbContext>();
         }
     }
