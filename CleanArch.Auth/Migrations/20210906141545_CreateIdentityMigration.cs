@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CleanArch.Auth.Migrations
 {
-    public partial class InitialMigration : Migration
+    public partial class CreateIdentityMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

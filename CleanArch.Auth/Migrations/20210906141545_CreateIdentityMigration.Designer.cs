@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CleanArch.Auth.Migrations
 {
     [DbContext(typeof(AuthDbContext))]
-    [Migration("20210905065254_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20210906141545_CreateIdentityMigration")]
+    partial class CreateIdentityMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
