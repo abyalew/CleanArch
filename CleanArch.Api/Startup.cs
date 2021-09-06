@@ -25,9 +25,10 @@ namespace CleanArch.Api
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
             });
+
             services.AddCors();
 
-            services.AddControllers().AddApplicationPart(Assembly.GetAssembly(typeof(AccountController)));
+            services.AddControllers().AddApplicationPart(Assembly.GetAssembly(typeof(IdentityController)));
 
             services.AddCleanArchAuth(Configuration);
         }

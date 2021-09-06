@@ -1,29 +1,33 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.IdentityModel.Tokens;
 using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace CleanArch.Auth
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AccountController : ControllerBase
+    public class IdentityController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IMessageService _messageService;
-
-        public AccountController(
+        private readonly JwtSettings _jwtSettings;
+        public IdentityController(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
-            IMessageService messageService)
+            IMessageService messageService, JwtSettings jwtSettings)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _messageService = messageService;
+            _jwtSettings = jwtSettings;
         }
 
         [HttpPost]
@@ -43,6 +47,15 @@ namespace CleanArch.Auth
                 return new JsonResult(new Response(HttpStatusCode.BadRequest)
                 {
                     Message = "Passwords don't match!"
+                });
+            }
+
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null)
+            {
+                return new JsonResult(new Response(HttpStatusCode.BadRequest)
+                {
+                    Message = "email address already taken."
                 });
             }
 
@@ -141,6 +154,15 @@ namespace CleanArch.Auth
                 });
             }
 
+            var userHasValidPassword = await _userManager.CheckPasswordAsync(user, password);
+            if (!userHasValidPassword)
+            {
+                return new JsonResult(new Response(HttpStatusCode.BadRequest)
+                {
+                    Message = "Invalid Login and/or password"
+                });
+            }
+
             var passwordSignInResult = await _signInManager.PasswordSignInAsync(user, password, isPersistent: true, lockoutOnFailure: false);
             if (!passwordSignInResult.Succeeded)
             {
@@ -150,10 +172,32 @@ namespace CleanArch.Auth
                 });
             }
 
+            JwtSecurityTokenHandler tokenHandler;
+            SecurityToken token;
+            GenerateUserAccessToken(user, out tokenHandler, out token);
+
             return new JsonResult(new Response(HttpStatusCode.OK)
             {
-                Message = "Cookie created"
+                Message = tokenHandler.WriteToken(token)
             });
+        }
+
+        private void GenerateUserAccessToken(IdentityUser user, out JwtSecurityTokenHandler tokenHandler, out SecurityToken token)
+        {
+            tokenHandler = new JwtSecurityTokenHandler();
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                    {
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                    new Claim("Id", user.Id),
+                }),
+                Expires = DateTime.UtcNow.AddHours(2),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(_jwtSettings.GetSecretByte()), SecurityAlgorithms.HmacSha256Signature)
+            };
+            token = tokenHandler.CreateToken(tokenDescriptor);
         }
 
         [HttpPost]
