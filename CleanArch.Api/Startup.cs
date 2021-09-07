@@ -1,5 +1,6 @@
 using CleanArch.Auth;
 using CleanArch.Infra.Data.Context;
+using CleanArch.Infra.Ioc;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +39,8 @@ namespace CleanArch.Api
             {
                 options.UseSqlServer(Configuration.GetConnectionString("UniversityDb"));
             });
+
+            Container.ConfigureServices(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
