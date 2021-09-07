@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CleanArch.Auth\CleanArch.Auth.csproj" />
+    <ProjectReference Include="..\CleanArch.Infra.Data\CleanArch.Infra.Data.csproj" />
   </ItemGroup>
 
 
