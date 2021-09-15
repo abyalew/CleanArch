@@ -1,9 +1,12 @@
 ﻿using CleanArch.Application.Interfaces;
 using CleanArch.Application.ViewModels;
+using CleanArch.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace CleanArch.Api.Controllers
@@ -20,9 +23,10 @@ namespace CleanArch.Api.Controllers
         }
 
         [HttpGet]
-        public CourseViewModel GetCourses()
-        {
-            return _courseService.GetCourses();
+        [Authorize]
+        public Response<CourseViewModel> GetCourses()
+        { 
+            return new Response<CourseViewModel>(HttpStatusCode.OK) {Content = _courseService.GetCourses() };
         }
     }
 }

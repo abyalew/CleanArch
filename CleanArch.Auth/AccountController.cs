@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Tokens;
@@ -36,7 +37,7 @@ namespace CleanArch.Auth
         {
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {
-                return new JsonResult(new Response(HttpStatusCode.BadRequest)
+                return new JsonResult(new Response<string>(HttpStatusCode.BadRequest)
                 {
                     Message = "email or password is null"
                 });
@@ -44,7 +45,7 @@ namespace CleanArch.Auth
 
             if (password != confirmPassword)
             {
-                return new JsonResult(new Response(HttpStatusCode.BadRequest)
+                return new JsonResult(new Response<string>(HttpStatusCode.BadRequest)
                 {
                     Message = "Passwords don't match!"
                 });
@@ -53,7 +54,7 @@ namespace CleanArch.Auth
             var user = await _userManager.FindByEmailAsync(email);
             if (user != null)
             {
-                return new JsonResult(new Response(HttpStatusCode.BadRequest)
+                return new JsonResult(new Response<string>(HttpStatusCode.BadRequest)
                 {
                     Message = "email address already taken."
                 });
@@ -62,7 +63,8 @@ namespace CleanArch.Auth
             var newUser = new IdentityUser
             {
                 UserName = email,
-                Email = email
+                Email = email,
+                EmailConfirmed = true
             };
 
             IdentityResult userCreationResult = null;
@@ -72,57 +74,79 @@ namespace CleanArch.Auth
             }
             catch (SqlException)
             {
-                return new JsonResult(new Response(HttpStatusCode.InternalServerError)
+                return new JsonResult(new Response<string>(HttpStatusCode.InternalServerError)
                 {
                     Message = "Error communicating with the database, see logs for more details"
                 });
             }
-
+            user = await _userManager.FindByEmailAsync(email);
             if (!userCreationResult.Succeeded)
             {
-                return new JsonResult(new Response(HttpStatusCode.BadRequest)
+                return new JsonResult(new Response<string>(HttpStatusCode.BadRequest)
                 {
                     Message = "An error occurred when creating the user, see nested errors",
-                    Errors = userCreationResult.Errors.Select(x => new Response(HttpStatusCode.BadRequest)
+                    Errors = userCreationResult.Errors.Select(x => new Response<string>(HttpStatusCode.BadRequest)
                     {
                         Message = $"[{x.Code}] {x.Description}"
                     })
                 });
             }
 
-            var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
-            var tokenVerificationUrl = Url.Action(
-                "VerifyEmail", "Account",
-                new
-                {
-                    Id = newUser.Id,
-                    token = emailConfirmationToken
-                },
-                Request.Scheme);
+            //var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
+            //var param = new
+            //{
+            //    Id = newUser.Id,
+            //    token = emailConfirmationToken
+            //};
+            //var tokenVerificationUrl = Url.Action("VerifyEmail", "Account", param, Request.Scheme);
 
-            await _messageService.Send(email, "Verify your email", $"Click <a href=\"{tokenVerificationUrl}\">here</a> to verify your email");
+            //await _messageService.Send(email, "Verify your email", $"Click <a href=\"{tokenVerificationUrl}\">here</a> to verify your email");
 
-            return new JsonResult(new Response(HttpStatusCode.OK)
-            {
-                Message = $"Registration completed, please verify your email - {email}"
-            });
+            //return new JsonResult(new Response<User>(HttpStatusCode.OK)
+            //{
+            //    Message = $"Registration completed, please verify your email - {email}",
+            //    Content = new User
+            //    {
+            //        Id = user.Id,
+            //        Email = user.Email,
+            //        UserName = user.UserName
+            //    }
+            //});
+
+            return await Login(email, password);
         }
 
         [HttpPost]
         [Route("verifyEmail")]
-        public async Task<IActionResult> VerifyEmail(string id, string token)
+        public async Task<JsonResult> VerifyEmail(string id, string token)
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
                 throw new InvalidOperationException();
 
             var emailConfirmationResult = await _userManager.ConfirmEmailAsync(user, token);
+
             if (!emailConfirmationResult.Succeeded)
             {
-                return new RedirectResult("http://dev.localhost.com:4000/registration.html");
+                return new JsonResult(new Response<User>(HttpStatusCode.NotFound)
+                {
+                    Message = "Email verification failed.",
+                    Errors = emailConfirmationResult.Errors.Select(x => new Response<string>(HttpStatusCode.BadRequest)
+                    {
+                        Message = $"[{x.Code}] {x.Description}"
+                    })
+                });
             }
 
-            return new RedirectResult("http://dev.localhost.com:4000/");
+            return new JsonResult(new Response<User>(HttpStatusCode.OK)
+            {
+                Content = new User
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    UserName = user.UserName
+                }
+            });
         }
 
         [HttpPost]
@@ -131,7 +155,7 @@ namespace CleanArch.Auth
         {
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {
-                return new JsonResult(new Response(HttpStatusCode.BadRequest)
+                return new JsonResult(new Response<string>(HttpStatusCode.BadRequest)
                 {
                     Message = "email or password is null"
                 });
@@ -140,7 +164,7 @@ namespace CleanArch.Auth
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
-                return new JsonResult(new Response(HttpStatusCode.BadRequest)
+                return new JsonResult(new Response<string>(HttpStatusCode.BadRequest)
                 {
                     Message = "Invalid Login and/or password"
                 });
@@ -148,7 +172,7 @@ namespace CleanArch.Auth
 
             if (!user.EmailConfirmed)
             {
-                return new JsonResult(new Response(HttpStatusCode.BadRequest)
+                return new JsonResult(new Response<string>(HttpStatusCode.BadRequest)
                 {
                     Message = "Email not confirmed, please check your email for confirmation link"
                 });
@@ -157,7 +181,7 @@ namespace CleanArch.Auth
             var userHasValidPassword = await _userManager.CheckPasswordAsync(user, password);
             if (!userHasValidPassword)
             {
-                return new JsonResult(new Response(HttpStatusCode.BadRequest)
+                return new JsonResult(new Response<string>(HttpStatusCode.BadRequest)
                 {
                     Message = "Invalid Login and/or password"
                 });
@@ -166,7 +190,7 @@ namespace CleanArch.Auth
             var passwordSignInResult = await _signInManager.PasswordSignInAsync(user, password, isPersistent: true, lockoutOnFailure: false);
             if (!passwordSignInResult.Succeeded)
             {
-                return new JsonResult(new Response(HttpStatusCode.BadRequest)
+                return new JsonResult(new Response<string>(HttpStatusCode.BadRequest)
                 {
                     Message = "Invalid Login and/or password"
                 });
@@ -176,9 +200,9 @@ namespace CleanArch.Auth
             SecurityToken token;
             GenerateUserAccessToken(user, out tokenHandler, out token);
 
-            return new JsonResult(new Response(HttpStatusCode.OK)
+            return new JsonResult(new Response<string>(HttpStatusCode.OK)
             {
-                Message = tokenHandler.WriteToken(token)
+                Content = tokenHandler.WriteToken(token)
             });
         }
 
@@ -206,9 +230,27 @@ namespace CleanArch.Auth
         {
             await _signInManager.SignOutAsync();
 
-            return new JsonResult(new Response(HttpStatusCode.OK)
+            return new JsonResult(new Response<string>(HttpStatusCode.OK)
             {
                 Message = "You have been successfully logged out"
+            });
+        }
+
+        [HttpGet]
+        [Authorize]
+        [Route("getuserprofile")]
+        public async Task<JsonResult> GetUserProfile()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            
+            return new JsonResult(new Response<User>(HttpStatusCode.OK)
+            {
+                Content=new User
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    UserName = user.UserName
+                }
             });
         }
     }
