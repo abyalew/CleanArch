@@ -1,11 +1,7 @@
 ﻿using CleanArch.Domain.Interfaces;
 using CleanArch.Domain.Models;
 using CleanArch.Infra.Data.Context;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CleanArch.Infra.Data.Repositories
 {
@@ -21,6 +17,14 @@ namespace CleanArch.Infra.Data.Repositories
         public IEnumerable<Course> GetCourses()
         {
             return _context.Courses;
+        }
+
+
+        public Course Add(Course course)
+        {
+            var entry = _context.Courses.Add(course);
+            _context.SaveChanges();
+            return entry.Entity;
         }
     }
 }

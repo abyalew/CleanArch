@@ -1,4 +1,4 @@
-﻿using CleanArch.Application.Interfaces;
+﻿using CleanArch.Application.Abstractions.Interfaces;
 using CleanArch.Application.Services;
 using CleanArch.Domain.Interfaces;
 using CleanArch.Infra.Data.Repositories;

@@ -242,10 +242,12 @@ namespace CleanArch.Auth
         public async Task<JsonResult> GetUserProfile()
         {
             var user = await _userManager.GetUserAsync(User);
-            
+
+            if (user == null)
+                return new JsonResult(new Response<User>(HttpStatusCode.NotFound) { Message = "User not found." });
             return new JsonResult(new Response<User>(HttpStatusCode.OK)
             {
-                Content=new User
+                Content = new User
                 {
                     Id = user.Id,
                     Email = user.Email,

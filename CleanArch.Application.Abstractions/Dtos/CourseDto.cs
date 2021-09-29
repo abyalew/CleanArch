@@ -1,6 +1,10 @@
-﻿namespace CleanArch.Domain.Models
+﻿using AutoMapper;
+using CleanArch.Domain.Models;
+
+namespace CleanArch.Application.Abstractions.Dtos
 {
-    public class Course
+    [AutoMap(typeof(Course),ReverseMap = true)]
+    public class CourseDto
     {
         public int Id { get; set; }
         public string Name { get; set; }

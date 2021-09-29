@@ -1,13 +1,10 @@
-﻿using CleanArch.Application.Interfaces;
-using CleanArch.Application.ViewModels;
+﻿using CleanArch.Application.Abstractions.Dtos;
+using CleanArch.Application.Abstractions.Interfaces;
 using CleanArch.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 
 namespace CleanArch.Api.Controllers
 {
@@ -24,9 +21,16 @@ namespace CleanArch.Api.Controllers
 
         [HttpGet]
         [Authorize]
-        public Response<CourseViewModel> GetCourses()
-        { 
-            return new Response<CourseViewModel>(HttpStatusCode.OK) {Content = _courseService.GetCourses() };
+        public Response<List<CourseDto>> GetCourses()
+        {
+            return new Response<List<CourseDto>>(HttpStatusCode.OK) { Content = _courseService.GetCourses() };
+        }
+
+        [HttpGet]
+        [Authorize]
+        public Response<CourseDto> Add([FromBody]CourseDto course)
+        {
+            return new Response<CourseDto>(HttpStatusCode.OK) { Content = _courseService.Add(course) };
         }
     }
 }

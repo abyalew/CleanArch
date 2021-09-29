@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CleanArch.Auth
+﻿namespace CleanArch.Auth
 {
     public class UserConfirmation
     {
-        public UserConfirmation(string id,string confimarionToken)
+        public UserConfirmation(string id, string confimarionToken)
         {
             Id = id;
             ConfirmationToken = confimarionToken;

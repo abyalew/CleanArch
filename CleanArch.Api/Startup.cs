@@ -1,3 +1,4 @@
+using CleanArch.Application.Abstractions.Interfaces;
 using CleanArch.Auth;
 using CleanArch.Infra.Data.Context;
 using CleanArch.Infra.Ioc;
@@ -30,6 +31,8 @@ namespace CleanArch.Api
             });
 
             services.AddCors();
+
+            services.AddSingleton<IAutoMap, AutoMap>();
 
             services.AddControllers().AddApplicationPart(Assembly.GetAssembly(typeof(IdentityController)));
 

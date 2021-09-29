@@ -1,29 +1,31 @@
-﻿using CleanArch.Application.Interfaces;
-using CleanArch.Application.ViewModels;
+﻿using CleanArch.Application.Abstractions.Dtos;
+using CleanArch.Application.Abstractions.Interfaces;
 using CleanArch.Domain.Interfaces;
-using System;
+using CleanArch.Domain.Models;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CleanArch.Application.Services
 {
     public class CourseService : ICourseService
     {
         private readonly ICourseRepository _courseRepository;
+        private readonly IAutoMap _autoMap;
 
-        public CourseService(ICourseRepository courseRepository)
+        public CourseService(ICourseRepository courseRepository, IAutoMap autoMap)
         {
             _courseRepository = courseRepository;
+            _autoMap = autoMap;
         }
 
-        public CourseViewModel GetCourses()
+        public List<CourseDto> GetCourses()
         {
-            return new CourseViewModel
-            {
-                Courses = _courseRepository.GetCourses()
-            };
+            return _autoMap.MapTo<IEnumerable<Course>, List<CourseDto>>(_courseRepository.GetCourses());
+        }
+
+        public CourseDto Add(CourseDto course)
+        {
+            var newCourse = _courseRepository.Add(_autoMap.MapTo<CourseDto,Course>(course));
+            return _autoMap.MapTo<Course, CourseDto>(newCourse);
         }
     }
 }
