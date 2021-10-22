@@ -1,5 +1,7 @@
+using CleanArch.Application;
 using CleanArch.Application.Abstractions.Interfaces;
 using CleanArch.Auth;
+using CleanArch.Infra;
 using CleanArch.Infra.Data.Context;
 using CleanArch.Infra.Ioc;
 using Microsoft.AspNetCore.Builder;
@@ -37,13 +39,8 @@ namespace CleanArch.Api
             services.AddControllers().AddApplicationPart(Assembly.GetAssembly(typeof(IdentityController)));
 
             services.AddCleanArchAuth(Configuration);
-
-            services.AddDbContext<UniversityDbContext>(options =>
-            {
-                options.UseSqlServer(Configuration.GetConnectionString("UniversityDb"));
-            });
-
-            Container.ConfigureServices(services);
+            services.AddApplication(Configuration);
+            services.AddInfrastructure(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -2,7 +2,7 @@
 using CleanArch.Application.Abstractions.Interfaces;
 using System.Reflection;
 
-namespace CleanArch.Api
+namespace CleanArch.Infra
 {
     public class AutoMap : IAutoMap
     {
