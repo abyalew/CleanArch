@@ -82,10 +82,10 @@ namespace CleanArch.Infra.Data.Repositories
         protected static IQueryable<TEntity> Include<TEntity>(IQueryable<TEntity> query,
             params Expression<Func<TEntity, object>>[] includes) where TEntity : class
         {
-            IQueryable<TEntity> queryable = null;
+            IQueryable<TEntity> queryable = query;
             foreach (var include in includes)
             {
-                queryable = query.Include(include);
+                queryable = queryable.Include(include);
             }
             return queryable;
         }
