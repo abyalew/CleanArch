@@ -1,5 +1,6 @@
 using CleanArch.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,10 +11,31 @@ namespace CleanArch.Infra.Data.Repositories
     public class Repo<T> : IRepo<T> where T : class
     {
         internal readonly DbContext _context;
-
+        internal IDbContextTransaction _transaction;
         public Repo(DbContext context)
         {
             _context = context;
+        }
+
+        public void BeginTransaction()
+        {
+            _transaction = _context.Database.BeginTransaction();
+        }
+
+        public void Commit()
+        {
+            try
+            {
+                if (_transaction != null)
+                {
+                    _transaction.Commit();
+                }
+            }
+            catch (Exception)
+            {
+                _transaction?.Rollback();
+                throw;
+            }
         }
 
         public T Add(T entity)
@@ -42,10 +64,8 @@ namespace CleanArch.Infra.Data.Repositories
 
         public IEnumerable<T> Find(Expression<Func<T, bool>> filter,params Expression<Func<T, object>> [] includes)
         {
-            return Include(includes,_context.Set<T>().Where(filter));
+            return Include(_context.Set<T>().Where(filter), includes);
         }
-
-
 
         public IEnumerable<T> GetAll()
         {
@@ -59,9 +79,8 @@ namespace CleanArch.Infra.Data.Repositories
             return entry.Entity;
         }
 
-        private static IQueryable<TEntity> Include<TEntity>(
-            Expression<Func<TEntity, object>>[] includes, 
-            IQueryable<TEntity> query) where TEntity : class
+        protected static IQueryable<TEntity> Include<TEntity>(IQueryable<TEntity> query,
+            params Expression<Func<TEntity, object>>[] includes) where TEntity : class
         {
             IQueryable<TEntity> queryable = null;
             foreach (var include in includes)

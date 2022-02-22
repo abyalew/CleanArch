@@ -16,7 +16,7 @@ namespace CleanArch.Infra.Data.Repositories
         }
         public IEnumerable<Recipe> GetRecipesWithIngredients()
         {
-            return _context.Recipes.Include(r=>r.Ingredients);
+            return Include(_context.Recipes, r => r.Ingredients);
         }
     }
 }

@@ -1,15 +1,9 @@
-﻿using CleanArch.Application.Abstractions.Interfaces;
-using CleanArch.Application.Services;
-using CleanArch.Domain.Interfaces;
+﻿using CleanArch.Domain.Interfaces;
 using CleanArch.Infra.Data.Context;
 using CleanArch.Infra.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 
 namespace CleanArch.Infra.Ioc
@@ -32,8 +26,6 @@ namespace CleanArch.Infra.Ioc
             }
             services.AddScoped<ICourseRepository, CourseRepository>();
             services.AddScoped<IRecipeRepo, RecipeRepo>();
-
-
             return services;
         }
     }
